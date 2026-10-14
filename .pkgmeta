@@ -1,0 +1,16 @@
+# Tells the release packager what goes in the zip players download.
+package-as: SessionRecap
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
+# Everything a player does not need.
+ignore:
+  - tests
+  - tools
+  - media
+  - .github
+  - .luarc.json
+  - CLAUDE.md
+  - README.md
