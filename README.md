@@ -36,6 +36,16 @@ A session belongs to one character. Logging out and back in, or reloading the in
 - **Loot is read from the game's own chat lines**, so it counts what you personally received.
 - **Nothing is sent anywhere.** It is all saved on your own computer.
 
+## More from this author
+
+Other small addons for World of Warcraft: Forever, all free:
+
+- **[GatherTrail](https://github.com/bizzal70/GatherTrail)** remembers ore, herbs, fishing pools, skinning spots, chests and rares across all your characters, and guides you back to the best spots.
+- **[MouseTip](https://www.curseforge.com/wow/addons/mousetip)** shows tooltips at your mouse cursor.
+- **[RangeShade](https://www.curseforge.com/wow/addons/rangeshade)** shades action buttons red when your target is out of range.
+- **[VendorMate](https://github.com/bizzal70/VendorMate)** sells junk and repairs at vendors, and warns when your gear is wearing out.
+- **[AltBoard](https://github.com/bizzal70/AltBoard)** shows all your characters at a glance: level, gold, rested and where you left them.
+
 ## Installing
 
 Copy this folder into `World of Warcraft\_classic_beta_\Interface\AddOns\` as `SessionRecap`, restart the game, and enable SessionRecap on the character select screen.
