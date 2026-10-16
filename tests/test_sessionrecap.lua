@@ -87,10 +87,12 @@ check(texts["Copper Ore"] and texts["x4"] and texts["No earlier sessions on this
 
 -- a quick relog carries on; a long break starts afresh
 clock = clock + 300
+local printedBefore = #PRINTED
 Fire("PLAYER_LOGIN")
 check(ns.char.current == s and #ns.char.history == 0, "logging back in within a few minutes carries on the same session")
+check(#PRINTED == printedBefore + 1 and PRINTED[#PRINTED]:find("Carrying on this session, 35 min so far.", 1, true) ~= nil, "and says so in one line at login: " .. PRINTED[#PRINTED])
 clock = clock + 3 * 3600
-local printedBefore = #PRINTED
+printedBefore = #PRINTED
 Fire("PLAYER_LOGIN")
 check(ns.char.current ~= s and #ns.char.history == 1 and ns.char.history[1] == s and ns.char.current.earned == 0, "after a long break a new session starts and the old one is kept")
 check(#PRINTED == printedBefore + 1 and PRINTED[#PRINTED]:find("Last session: ", 1, true) ~= nil, "and one line about the last session is said at login")
@@ -102,7 +104,7 @@ check(#ns.char.history == 1, "a session of a few seconds is not worth keeping")
 clock = clock + 600; ME.money = 20000; Fire("PLAYER_MONEY")
 for _, f in ipairs(Frames()) do
     local label = nil
-    if f.__scripts.OnClick and f ~= SessionRecapWindow then
+    if f.__scripts.OnClick and f ~= SessionRecapWindow and f ~= SessionRecapMinimapButton then
         f.__scripts.OnClick(f)
     end
 end
@@ -122,6 +124,23 @@ Fire("PLAYER_LOGIN")
 check(#PRINTED == printedBefore and not ns.db.greet, "/session greet turns the login line off")
 SessionRecap_OnAddonCompartmentClick()
 SlashCmdList.SESSIONRECAP("help")
+
+-- the minimap button
+check(SessionRecapMinimapButton.__shown, "the minimap button shows by default")
+local wasShown = SessionRecapWindow:IsShown()
+SessionRecapMinimapButton.__scripts.OnClick(SessionRecapMinimapButton)
+check(SessionRecapWindow:IsShown() ~= wasShown, "clicking it opens or closes the window")
+SlashCmdList.SESSIONRECAP("button")
+check(not SessionRecapMinimapButton.__shown and not ns.db.minimapButton, "/session button hides it")
+SlashCmdList.SESSIONRECAP("button")
+check(SessionRecapMinimapButton.__shown, "and shows it again")
+
+-- /session debug explains what the game has sent
+Fire("CHAT_MSG_LOOT", "Someone else receives loot: [Linen Cloth].")
+printedBefore = #PRINTED
+SlashCmdList.SESSIONRECAP("debug")
+local said = table.concat(PRINTED, " | ", printedBefore + 1)
+check(said:find("Money changes seen: ", 1, true) and said:find("Loot lines seen: ", 1, true) and said:find("Someone else receives loot", 1, true), "/session debug reports money and loot events, and the last loot line not counted: " .. said)
 
 -- the game misbehaving must not leave an error on screen
 UnitXP = function() error("something this client does differently") end

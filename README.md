@@ -17,14 +17,16 @@ It also keeps your last ten sessions on each character, to compare against.
 
 ## Using it
 
-Type `/session` to open the window. The figures update as you play.
+Type `/session`, or click the pocket-watch button on the minimap, to open the window. The figures update as you play. Counting starts by itself when you log in, with one line in chat to say so.
 
 | Command | What it does |
 |---|---|
 | `/session` | Open the window |
 | `/session report` | Sum the session up in chat |
 | `/session new` | Start a new session now |
-| `/session greet` | A line about your last session when you log in, on or off |
+| `/session greet` | The line about your session when you log in, on or off |
+| `/session button` | Show or hide the minimap button |
+| `/session debug` | What the game has reported this login, to explain a count that stays at zero |
 
 ## What counts as a session
 

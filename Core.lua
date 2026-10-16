@@ -28,7 +28,13 @@ ns.GATHER_ORDER = { "ore", "herbs", "skins" }
 local settingsDefaults = {
     -- Whether to say one line about the previous session at login.
     greet = true,
+    minimapButton = true,
+    minimapAngle = 4.4,
 }
+
+-- What the game has sent this login, for /session debug. Kept in memory
+-- only: it explains a zero in the window without guessing.
+local seen = { money = 0, moneyHidden = 0, loot = 0, lootHidden = 0, lootMatched = 0 }
 
 function ns.Print(msg)
     print("|cffd9a066SessionRecap|r: " .. tostring(msg))
@@ -125,8 +131,9 @@ end
 local handlers = {}
 
 function handlers.PLAYER_MONEY()
+    seen.money = seen.money + 1
     local money = GetMoney()
-    if not Usable(money) then return end
+    if not Usable(money) then seen.moneyHidden = seen.moneyHidden + 1; return end
     if lastMoney then
         local change = money - lastMoney
         local session = ns.char.current
@@ -196,17 +203,33 @@ local function BuildLootPatterns()
 end
 
 function handlers.CHAT_MSG_LOOT(message)
-    if not Usable(message) then return end
+    seen.loot = seen.loot + 1
+    if not Usable(message) then seen.lootHidden = seen.lootHidden + 1; return end
     if not lootPatterns then BuildLootPatterns() end
     for _, pattern in ipairs(lootPatterns) do
         local item, count = message:match(pattern)
         if item then
+            seen.lootMatched = seen.lootMatched + 1
             -- The item arrives as a link; its name is the part in brackets.
             local name = item:match("%[(.-)%]") or item
             local loot = ns.char.current.loot
             loot[name] = (loot[name] or 0) + (tonumber(count) or 1)
             return
         end
+    end
+    -- Not the player's own loot, or worded in a way the patterns miss.
+    seen.lastUnmatched = message
+end
+
+-- Says what the game has sent this login, to explain an empty count.
+local function PrintDebug()
+    if not lootPatterns then BuildLootPatterns() end
+    ns.Print(("Money changes seen: %d (%d hidden by the game). Money now: %s."):format(
+        seen.money, seen.moneyHidden, Usable(GetMoney()) and ns.Money(GetMoney()) or "hidden"))
+    ns.Print(("Loot lines seen: %d (%d hidden, %d counted). Loot patterns: %d."):format(
+        seen.loot, seen.lootHidden, seen.lootMatched, #lootPatterns))
+    if seen.lastUnmatched then
+        ns.Print("Last loot line not counted: " .. seen.lastUnmatched)
     end
 end
 
@@ -308,6 +331,12 @@ SlashCmdList.SESSIONRECAP = function(msg)
         ReadBaselines()
         ns.Print("Started a new session.")
         ns.RefreshWindow()
+    elseif command == "button" then
+        ns.db.minimapButton = not ns.db.minimapButton
+        ns.UpdateMinimapButton()
+        ns.Print("Minimap button " .. (ns.db.minimapButton and "shown." or "hidden."))
+    elseif command == "debug" then
+        PrintDebug()
     elseif command == "greet" then
         ns.db.greet = not ns.db.greet
         ns.Print("The line about your last session at login is " .. (ns.db.greet and "on." or "off."))
@@ -315,7 +344,9 @@ SlashCmdList.SESSIONRECAP = function(msg)
         ns.Print("/session - open the session window")
         ns.Print("/session report - sum up this session in chat")
         ns.Print("/session new - start a new session now")
-        ns.Print("/session greet - a line about your last session when you log in, on or off")
+        ns.Print("/session greet - a line about your session when you log in, on or off")
+        ns.Print("/session button - show or hide the minimap button")
+        ns.Print("/session debug - what the game has reported this login")
     end
 end
 
@@ -347,12 +378,23 @@ frame:SetScript("OnEvent", function(self, event, ...)
 
     if event == "PLAYER_LOGIN" then
         local current = ns.char.current
+        local line
         if not current or time() - (current.last or current.start) > SESSION_GAP then
             local ended = ns.StartNewSession()
-            if ended and ns.db.greet then
-                ns.Print("Last session: " .. ns.OneLine(ended) .. ".")
+            if ended then
+                line = "Last session: " .. ns.OneLine(ended) .. ". Starting a new one."
+            else
+                line = "Counting this session."
             end
+        else
+            -- Back within a few minutes: the same session carries on.
+            Touch()
+            line = "Carrying on this session, " .. ns.Duration(ns.Seconds(current)) .. " so far."
         end
+        if ns.db.greet then
+            ns.Print(line .. " Type /session to see it.")
+        end
+        ns.UpdateMinimapButton()
         ReadBaselines()
         -- Registering an event this client does not have throws.
         for name in pairs(handlers) do
