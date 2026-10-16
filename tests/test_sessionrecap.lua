@@ -4,6 +4,13 @@ GetMoney = function() return ME.money end
 UnitXP = function() return ME.xp end
 UnitXPMax = function() return ME.xpMax end
 UnitLevel = function() return ME.level end
+GetXPExhaustion = function() return ME.rested end
+-- Items: every item has the same made-up icon and is "uncommon" (green).
+C_Item = {
+    GetItemInfoInstant = function(link) return 123, "Trade Goods", "Metal", "", "icon-123" end,
+    GetItemInfo = function(link) return "Copper Ore", link, 2 end,
+    GetItemQualityColor = function(quality) return 0.12, 1, 0 end,
+}
 LOOT_ITEM_SELF = "You receive loot: %s."
 LOOT_ITEM_SELF_MULTIPLE = "You receive loot: %sx%d."
 LOOT_ITEM_PUSHED_SELF = "You receive item: %s."
@@ -78,12 +85,39 @@ check(s.earned == earnedBefore, "a value the game withholds for a moment is not 
 SlashCmdList.SESSIONRECAP("")
 check(SessionRecapWindow:IsShown(), "/session opens the window")
 SessionRecapWindow.__scripts.OnUpdate(SessionRecapWindow, 1.5)
-local texts = {}
-for _, f in ipairs(Frames()) do
-    if rawget(f, "__text") then texts[f.__text] = true end
+-- Money shows as coin pictures; reading them back as letters keeps the
+-- checks readable: "26(silver coin)" in green reads "26s".
+local function Plain(text)
+    text = text:gsub("|TInterface\\MoneyFrame\\UI%-(%a)%a+Icon:0:0:2:0|t", function(c) return c:lower() end)
+    return (text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""))
 end
-check(texts["30 min"] and texts["26s"] and texts["5s"] and texts["|cff50d050+21s|r"] and texts["950"] and texts["1,900"] and texts["2 ore, 1 herbs, 3 skins"], "it shows the session's figures")
-check(texts["Copper Ore"] and texts["x4"] and texts["No earlier sessions on this character yet."], "and what was looted most")
+local texts, raw = {}, {}
+for _, f in ipairs(Frames()) do
+    if rawget(f, "__text") then texts[Plain(f.__text)] = f; raw[f.__text] = f end
+end
+check(texts["30 min"] and texts["26s"] and texts["5s"] and texts["+21s"] and texts["950"] and texts["1,900"] and texts["2 ore, 1 herbs, 3 skins"], "it shows the session's figures")
+check(raw["|cff50d050+21|TInterface\\MoneyFrame\\UI-SilverIcon:0:0:2:0|t|r"] and raw["|cffff7060" .. "5|TInterface\\MoneyFrame\\UI-SilverIcon:0:0:2:0|t|r"], "money shows with coin pictures, money in green and money out red")
+check(ns.CoinText(1234567) == "123|TInterface\\MoneyFrame\\UI-GoldIcon:0:0:2:0|t 45|TInterface\\MoneyFrame\\UI-SilverIcon:0:0:2:0|t 67|TInterface\\MoneyFrame\\UI-CopperIcon:0:0:2:0|t", "coins are written gold, silver, copper")
+local ore = texts["Copper Ore"]
+check(ore and texts["x4"] and texts["No earlier sessions on this character yet."], "and what was looted most")
+check(ore.__color and math.abs(ore.__color[1] - 0.12) < 0.01 and ore.__color[2] == 1, "looted items are named in their quality colour")
+local icons = {}
+for _, f in ipairs(Frames()) do
+    if rawget(f, "__texture") == "icon-123" and f.__shown ~= false then icons[#icons + 1] = f end
+end
+check(#icons >= 1, "and shown with their icon")
+check(texts["Level 6:  50 / 1,200  (4%)"], "the level bar says how far through the level you are")
+local pace = nil
+for text in pairs(texts) do if text:find("^About .+ to level 7 at this pace$") then pace = text end end
+check(pace ~= nil, "and how long the rest will take at this pace: " .. tostring(pace))
+ME.rested = 300
+SessionRecapWindow.__scripts.OnUpdate(SessionRecapWindow, 1.5)
+local restedShown = false
+for _, f in ipairs(Frames()) do
+    if rawget(f, "__text") and Plain(f.__text) == "Level 6:  50 / 1,200  (4%)  300 rested" then restedShown = true end
+end
+check(restedShown, "rested experience is shown too")
+ME.rested = nil
 
 -- a quick relog carries on; a long break starts afresh
 clock = clock + 300

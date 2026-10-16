@@ -8,10 +8,10 @@ SessionRecap keeps count while you play, so at any point you can see how the ses
 
 - time played
 - money in, money out, and the difference
-- experience gained, and experience per hour
+- experience gained, experience per hour, and a level bar with how long the rest of the level will take at this pace
 - levels gained, quests handed in, deaths
 - what you gathered (ore, herbs, skins)
-- the items you looted most
+- the items you looted most, with their icons
 
 It also keeps your last ten sessions on each character, to compare against.
 

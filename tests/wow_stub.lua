@@ -28,6 +28,8 @@ local function Stub()
         elseif k == "IsShown" or k == "IsVisible" then f = function(self) return self.__shown end
         elseif k == "SetOwner" then f = function(self, ...) self.__owner = { ... } end
         elseif k == "SetVertexColor" then f = function(self, ...) self.__color = { ... } end
+        elseif k == "SetTextColor" then f = function(self, ...) self.__color = { ... } end
+        elseif k == "SetTexture" then f = function(self, t) self.__texture = t end
         elseif k == "Show" then f = function(self) self.__shown = true end
         elseif k == "Hide" then f = function(self) self.__shown = false end
         elseif k == "SetShown" then f = function(self, v) assert(type(v) == "boolean", "SetShown needs boolean"); self.__shown = v end

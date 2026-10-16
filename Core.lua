@@ -59,6 +59,21 @@ function ns.Money(copper)
     return table.concat(parts, " ")
 end
 
+-- 12345 copper -> "1 (gold coin) 23 (silver coin) 45 (copper coin)", as the
+-- game itself shows money.
+local COIN = "|TInterface\\MoneyFrame\\UI-%sIcon:0:0:2:0|t"
+function ns.CoinText(copper)
+    copper = math.floor(math.abs(copper) + 0.5)
+    local gold = math.floor(copper / 10000)
+    local silver = math.floor(copper / 100) % 100
+    local rest = copper % 100
+    local parts = {}
+    if gold > 0 then parts[#parts + 1] = ns.Number(gold) .. COIN:format("Gold") end
+    if silver > 0 then parts[#parts + 1] = silver .. COIN:format("Silver") end
+    if rest > 0 or #parts == 0 then parts[#parts + 1] = rest .. COIN:format("Copper") end
+    return table.concat(parts, " ")
+end
+
 -- 3725 seconds -> "1 h 2 min"
 function ns.Duration(seconds)
     seconds = math.max(0, math.floor(seconds))
@@ -89,7 +104,7 @@ end
 local function NewSession()
     local now = time()
     return { start = now, last = now, earned = 0, spent = 0, xp = 0, levels = 0,
-        quests = 0, deaths = 0, loot = {}, gathers = {} }
+        quests = 0, deaths = 0, loot = {}, lootLinks = {}, gathers = {} }
 end
 
 function ns.Seconds(session)
@@ -212,8 +227,13 @@ function handlers.CHAT_MSG_LOOT(message)
             seen.lootMatched = seen.lootMatched + 1
             -- The item arrives as a link; its name is the part in brackets.
             local name = item:match("%[(.-)%]") or item
-            local loot = ns.char.current.loot
-            loot[name] = (loot[name] or 0) + (tonumber(count) or 1)
+            local session = ns.char.current
+            session.loot[name] = (session.loot[name] or 0) + (tonumber(count) or 1)
+            -- The link gives the window the item's icon and quality.
+            if item:find("|H", 1, true) then
+                session.lootLinks = session.lootLinks or {}
+                session.lootLinks[name] = item
+            end
             return
         end
     end
@@ -274,6 +294,14 @@ function ns.XPPerHour(session)
 end
 
 -- One line summing a session up.
+-- Seconds until the next level at this session's pace, or nil while there
+-- is no pace yet.
+function ns.TimeToLevel(session, xp, xpMax)
+    local rate = ns.XPPerHour(session)
+    if not rate or not xpMax or xpMax <= 0 or xp >= xpMax then return end
+    return (xpMax - xp) / rate * 3600
+end
+
 function ns.OneLine(session)
     local parts = { ns.Duration(ns.Seconds(session)) }
     local net = session.earned - session.spent
