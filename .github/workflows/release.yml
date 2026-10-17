@@ -31,6 +31,7 @@ jobs:
       - name: Package and upload
         uses: BigWigsMods/packager@v2
         env:
-          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          # CF_KEY is accepted too, the name this repository's secret was saved under.
+          CF_API_KEY: ${{ secrets.CF_API_KEY || secrets.CF_KEY }}
           WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}

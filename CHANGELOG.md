@@ -1,5 +1,9 @@
 # SessionRecap
 
+## 0.3.2
+
+- First release on CurseForge. No changes to how the addon works.
+
 ## 0.3.1
 
 - Every figure still at zero is dimmed, not just money, so the ones that have moved stand out.
