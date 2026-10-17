@@ -84,14 +84,18 @@ local function StatText(key, session)
         if net < 0 then return "|cffff5050-" .. ns.CoinText(net) .. "|r" end
         return GREY .. "0|r"
     elseif key == "xp" then
+        if session.xp == 0 then return GREY .. "0|r" end
         return ns.Number(session.xp)
     elseif key == "rate" then
         local rate = ns.XPPerHour(session)
-        return rate and ns.Number(rate) or "-"
+        return rate and ns.Number(rate) or (GREY .. "-|r")
     elseif key == "gathered" then
-        return ns.GatherText(session) or "-"
+        return ns.GatherText(session) or (GREY .. "-|r")
     end
-    return tostring(session[key] or 0)
+    -- Anything still at zero is dimmed, so the figures that moved stand out.
+    local value = session[key] or 0
+    if value == 0 then return GREY .. "0|r" end
+    return tostring(value)
 end
 
 -- An item's icon and quality colour, from the link kept when it was looted.

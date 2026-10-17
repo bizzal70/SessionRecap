@@ -1,5 +1,9 @@
 # SessionRecap
 
+## 0.3.1
+
+- Every figure still at zero is dimmed, not just money, so the ones that have moved stand out.
+
 ## 0.3.0
 
 - Money shows with gold, silver and copper coins, as the game does: money in green, money out red, and figures still at zero dimmed.

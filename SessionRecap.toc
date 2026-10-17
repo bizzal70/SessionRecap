@@ -2,7 +2,7 @@
 ## Title: SessionRecap
 ## Notes: A running tally of your play session: time, money, experience, quests, loot and gathering. Type /session.
 ## Author: bizzal70
-## Version: 0.3.0
+## Version: 0.3.1
 ## SavedVariables: SessionRecapDB
 ## SavedVariablesPerCharacter: SessionRecapCharDB
 ## IconTexture: Interface\Icons\INV_Misc_PocketWatch_01
