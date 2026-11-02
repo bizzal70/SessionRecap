@@ -9,7 +9,7 @@
 #>
 param(
     [string]$WowRoot = "C:\Program Files (x86)\World of Warcraft",
-    [string]$Flavor = "_classic_beta_",
+    [string]$Flavor = "_forever_",
     [switch]$Remove
 )
 

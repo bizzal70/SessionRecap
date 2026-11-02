@@ -7,7 +7,7 @@ A running tally of your play session: time, money, experience, quests, loot and 
 - **No local `.git`.** GitHub holds all history. Publish with `tools\Publish.ps1 -Message "..."`, which uses a throwaway temp clone and runs the tests first.
 - **Layout:** the addon's own files (`SessionRecap.toc` and the Lua files) sit at the top of the project, because that is what the release packager expects. `tests/`, `tools/`, `media/` and `.github/` are development-only and are left out of the released zip by `.pkgmeta`.
 - **Testing in game:** `tools\Link-Addon.ps1` junctions this folder into the client's `Interface\AddOns` as `SessionRecap`. Edits are live after `/reload`; a new file or a TOC change needs a full client restart.
-- **Client install:** `C:\Program Files (x86)\World of Warcraft\_classic_beta_\` (`WowB.exe`). Expect a different flavor folder after launch (reported for 2026-11-04); pass `-Flavor` to the link script then.
+- **Client install:** `C:\Program Files (x86)\World of Warcraft\_forever_\` (`Wow.exe`, product `wowf`), the live client since launch (4 November 2026). The beta folder `_classic_beta_` was removed on 2026-11-02, and its saved data went with it.
 - **Tests:** `python tests/run.py` runs the addon in real Lua 5.1 (the `lupa` pip package) against a fake WoW API in `tests/wow_stub.lua`, loading the files the TOC lists. The tests run before every publish and again on GitHub. They prove the addon's own logic only; whether the real client behaves like the stub can only be checked in game. Earlier bugs in sibling addons were wrong assumptions about the game that the fake shared, so anything that calls a game function runs under `pcall` and a surprise ends in a chat line, not an error box.
 - **Releases:** a tag starting with `v` runs `.github/workflows/release.yml`, which uses the BigWigs packager (it recognises this client and builds `-forever.zip` as game version 1.60.1). CurseForge and Wago uploads are skipped until their project IDs are in the TOC and their tokens are in the repository secrets.
 - **This repository may be made public.** Keep character names, account details and machine-specific paths out of it.
@@ -26,7 +26,7 @@ A running tally of your play session: time, money, experience, quests, loot and 
 
 Everything below, unless marked verified, comes from community sources during the beta (Warcraft Wiki, GitHub ports, fan guides), not from Blizzard docs. Builds change. Verify in game before relying on any of it.
 
-- Local client was 1.60.1.70338 on 2026-10-11 (read from `WowB.exe`).
+- Local client was 1.60.1.70338 on 2026-10-11 (beta, `WowB.exe`); the live client is 1.60.1.70707 (2026-10-30, `_forever_\Wow.exe`). The TOC interface number for live is not yet confirmed; check `select(4, GetBuildInfo())` in game.
 - TOC: `## Interface: 16001` (verified in game on build 70338).
 - TOC flavor suffix is `_Forever.toc` or `_Camelot.toc`. The TOC `[Game]` variable expands to `Camelot`. Game type for `AllowLoadGameType` is `forever` / `camelot`.
 - The client is Retail-based: Midnight 12.x API and UI architecture, not the Classic API. Port from Retail code.
