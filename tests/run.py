@@ -23,3 +23,24 @@ try:
 except Exception as error:
     print(f"test_sessionrecap.lua: ERROR: {error}")
     sys.exit(1)
+
+
+# Texture paths in Lua strings need doubled backslashes ("Interface\\Icons\\X").
+# Lua drops a single backslash without an error, so the path breaks and the
+# texture never draws (ZoomPad 0.2.0-0.2.2 shipped an invisible minimap button
+# this way). Fail the run if any addon file has one.
+import re as _re
+_single = _re.compile(r'"Interface\\[A-Za-z]')
+_broken = []
+for _file in sorted(ADDON.rglob("*.lua")):
+    if "tests" in _file.relative_to(ADDON).parts:
+        continue
+    for _n, _line in enumerate(_file.read_text(encoding="utf-8").splitlines(), 1):
+        if _single.search(_line):
+            _broken.append(f"{_file.relative_to(ADDON)}:{_n}: {_line.strip()}")
+if _broken:
+    print("Texture paths with single backslashes (write them as \\\\):")
+    for _entry in _broken:
+        print("  " + _entry)
+    sys.exit(1)
+print("texture paths: OK")
