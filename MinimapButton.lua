@@ -32,7 +32,14 @@ local function Place()
 end
 
 -- Dragging slides the button around the rim of the minimap.
-local function FollowCursor()
+local function FollowCursor(self)
+    -- Stop as soon as the mouse button is up, even if the game never sent
+    -- OnDragStop (it can go missing when two buttons overlap); otherwise the
+    -- button would keep following the cursor and drag along with another.
+    if IsMouseButtonDown and not IsMouseButtonDown("LeftButton") then
+        self:SetScript("OnUpdate", nil)
+        return
+    end
     local centerX, centerY = Minimap:GetCenter()
     local cursorX, cursorY = GetCursorPosition()
     local scale = Minimap:GetEffectiveScale()
@@ -42,6 +49,7 @@ end
 
 button:SetScript("OnDragStart", function(self) self:SetScript("OnUpdate", FollowCursor) end)
 button:SetScript("OnDragStop", function(self) self:SetScript("OnUpdate", nil) end)
+button:SetScript("OnHide", function(self) self:SetScript("OnUpdate", nil) end)
 button:SetScript("OnClick", function() ns.ToggleWindow() end)
 button:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_LEFT")

@@ -1,5 +1,9 @@
 # SessionRecap
 
+## 0.3.3
+
+- Fixed: the minimap button could keep following the mouse after a drag, and then move together with another addon's button sitting on top of it. It now stops the moment you let go.
+
 ## 0.3.2
 
 - First release on CurseForge. No changes to how the addon works.
