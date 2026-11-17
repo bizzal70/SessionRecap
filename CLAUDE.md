@@ -17,7 +17,7 @@ A running tally of your play session: time, money, experience, quests, loot and 
 - Per character: `SessionRecapCharDB.current` (the session in progress) and `.history` (up to 10 ended sessions, newest first). Account-wide: `SessionRecapDB` holds settings only.
 - A session carries on across a login or reload if its `last` timestamp is within `SESSION_GAP` (15 minutes); otherwise it is filed (if at least 2 minutes long) and a new one starts. `last` is refreshed on every tallied event and by a 30-second ticker.
 - Money: differences in `GetMoney` on `PLAYER_MONEY`, rises and falls kept apart. Experience: differences in `UnitXP` on `PLAYER_XP_UPDATE`; when `UnitLevel` has risen, the rest of the old level plus the new level's progress. Quests: `QUEST_TURNED_IN`. Deaths: `PLAYER_DEAD`.
-- Gathering: `UNIT_SPELLCAST_SUCCEEDED` for the player with a spell named "Mining", "Herb Gathering" / "Herbalism" or "Skinning" (the first three confirmed on Forever by GatherTrail).
+- Gathering: `UNIT_SPELLCAST_SUCCEEDED` for the player with a spell named "Mining", "Herb Gathering" / "Herbalism" or "Skinning" (the first three confirmed on Forever by GatherLog).
 - Loot: `CHAT_MSG_LOOT` matched against patterns built from the game's own `LOOT_ITEM_SELF`, `LOOT_ITEM_SELF_MULTIPLE`, `LOOT_ITEM_PUSHED_SELF` and `LOOT_ITEM_PUSHED_SELF_MULTIPLE` strings, so it follows the client's language; the item name is the bracketed part of the link.
 - Every tally handler runs under `pcall`.
 - Not run in the real game when written (2026-10-13). Unverified: whether chat loot text is readable by addons on Forever, and whether those four strings exist under those names.

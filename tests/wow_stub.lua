@@ -1,4 +1,4 @@
--- Minimal fake of the WoW API, enough to execute GatherTrail end to end.
+-- Minimal fake of the WoW API, enough to execute these addons end to end.
 local frames = {}
 local player = { map = 1, x = 0.5, y = 0.5, facing = 0 }
 local printed = {}
