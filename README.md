@@ -38,6 +38,10 @@ A session belongs to one character. Logging out and back in, or reloading the in
 - **Loot is read from the game's own chat lines**, so it counts what you personally received.
 - **Nothing is sent anywhere.** It is all saved on your own computer.
 
+## Controller
+
+With a game controller, the **B** button closes the session window, like the X and Escape do. While a window is open, B closes it; once it is closed, B goes back to whatever you have it set to. (In combat the game does not let addons change a button, so B goes back to normal when the fight ends.)
+
 ## More from this author
 
 Other small addons for World of Warcraft: Forever, all free:
