@@ -1,5 +1,9 @@
 # SessionRecap
 
+## 0.3.4
+
+- **Controller:** the B button now closes SessionRecap's window, like the X and Escape. While one is open, B closes it; once it is closed, B does whatever you have it set to again.
+
 ## 0.3.3
 
 - Fixed: the minimap button could keep following the mouse after a drag, and then move together with another addon's button sitting on top of it. It now stops the moment you let go.
