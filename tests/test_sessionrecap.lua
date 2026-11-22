@@ -200,3 +200,25 @@ do
     w.__scripts.OnHide(w)
     check(bound[w] == nil, "and B gets its usual job back once it is closed")
 end
+
+-- When a fight starts, B is handed back at once, even with the window open.
+do
+    local bound = {}
+    SetOverrideBinding = function(owner, _, key) bound[owner] = key end
+    ClearOverrideBindings = function(owner) bound[owner] = nil end
+    local w = CreateFrame("Frame", "PadFightTestWindow", UIParent)
+    w.HookScript = function(self, event, fn)
+        local previous = self.__scripts[event]
+        self.__scripts[event] = previous and function(...) previous(...); fn(...) end or fn
+    end
+    w.GetName = function() return "PadFightTestWindow" end
+    w:Hide()
+    ns.CloseWithPadB(w, "PadFightTestWindow")
+    w:Show(); w.__scripts.OnShow(w)
+    check(bound[w] == "PAD2", "with the window open, B closes it")
+    Fire("PLAYER_REGEN_DISABLED")
+    check(bound[w] == nil, "when a fight starts, B is handed back at once")
+    Fire("PLAYER_REGEN_ENABLED")
+    check(bound[w] == "PAD2", "and borrowed again once the fight is over")
+    w:Hide(); w.__scripts.OnHide(w)
+end
