@@ -1,0 +1,10 @@
+{
+    "runtime.version": "Lua 5.1",
+    "diagnostics.globals": [
+        "SessionRecapDB",
+        "SlashCmdList"
+    ],
+    "workspace.ignoreDir": [
+        ".claude"
+    ]
+}
